@@ -1,0 +1,5 @@
+Jane Smith
+Email: jane@example.com
+Full Stack Developer with 4 years experience
+Skills: React, Node.js, TypeScript, AWS, Docker
+Education: MS Computer Science from Stanford
