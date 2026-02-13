@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Box, Typography, Card, CardContent, Grid, Button,
@@ -18,10 +19,11 @@ import {
     Delete as DeleteIcon,
     Refresh as RefreshIcon,
     Schedule as ScheduleIcon,
+    Assessment as AnalyticsIcon,
 } from '@mui/icons-material';
 import { jobApi } from '../services/api';
 
-function JobCard({ job, onDelete, index }) {
+function JobCard({ job, onDelete, index, navigate }) {
     const statusColors = {
         uploaded: '#3b82f6',
         parsing: '#f59e0b',
@@ -102,8 +104,8 @@ function JobCard({ job, onDelete, index }) {
                                         sx={{
                                             fontSize: '0.65rem',
                                             height: 22,
-                                            background: 'rgba(99,102,241,0.15)',
-                                            color: '#818cf8',
+                                            background: 'rgba(99,102,241,0.08)',
+                                            color: '#6366f1',
                                         }}
                                     />
                                 ))}
@@ -114,9 +116,23 @@ function JobCard({ job, onDelete, index }) {
                         </Box>
                     )}
 
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-                        Created: {new Date(job.created_at).toLocaleDateString()}
-                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2, pt: 1.5, borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                        <Typography variant="caption" color="text.secondary">
+                            Created: {new Date(job.created_at).toLocaleDateString()}
+                        </Typography>
+                        <Button
+                            size="small"
+                            startIcon={<AnalyticsIcon sx={{ fontSize: 16 }} />}
+                            onClick={() => navigate(`/job/${job.id}/analytics`)}
+                            sx={{
+                                fontSize: '0.7rem', textTransform: 'none', fontWeight: 600,
+                                color: '#6366f1', borderRadius: 2,
+                                '&:hover': { background: 'rgba(99,102,241,0.08)' },
+                            }}
+                        >
+                            Analytics
+                        </Button>
+                    </Box>
                 </CardContent>
             </Card>
         </motion.div>
@@ -124,6 +140,7 @@ function JobCard({ job, onDelete, index }) {
 }
 
 function JobsPage() {
+    const navigate = useNavigate();
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -213,7 +230,7 @@ function JobsPage() {
                                 fontFamily: "'Outfit', sans-serif",
                                 fontWeight: 800,
                                 mb: 1,
-                                background: 'linear-gradient(135deg, #f1f5f9, #94a3b8)',
+                                background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent',
                             }}
@@ -275,7 +292,7 @@ function JobsPage() {
                     <AnimatePresence>
                         {jobs.map((job, index) => (
                             <Grid item xs={12} sm={6} md={4} key={job.id}>
-                                <JobCard job={job} onDelete={handleDelete} index={index} />
+                                <JobCard job={job} onDelete={handleDelete} index={index} navigate={navigate} />
                             </Grid>
                         ))}
                     </AnimatePresence>

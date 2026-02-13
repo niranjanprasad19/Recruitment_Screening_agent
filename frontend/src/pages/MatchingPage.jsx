@@ -11,7 +11,8 @@ import {
     Box, Typography, Card, CardContent, Grid, Button,
     Select, MenuItem, FormControl, InputLabel, Slider,
     Switch, FormControlLabel, Alert, LinearProgress,
-    Chip, Avatar, Divider,
+    Chip, Avatar, Divider, ToggleButtonGroup, ToggleButton,
+    TextField, Autocomplete, Checkbox,
 } from '@mui/material';
 import {
     PlayArrow as PlayIcon,
@@ -19,6 +20,10 @@ import {
     Speed as SpeedIcon,
     Tune as TuneIcon,
     CheckCircle as CheckIcon,
+    People as PeopleIcon,
+    Person as PersonIcon,
+    CheckBoxOutlineBlank as UncheckedIcon,
+    CheckBox as CheckedIcon,
 } from '@mui/icons-material';
 import { jobApi, matchApi, resumeApi } from '../services/api';
 
@@ -63,6 +68,9 @@ function MatchingPage() {
     const [status, setStatus] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [matchMode, setMatchMode] = useState('batch'); // 'batch' or 'individual'
+    const [candidates, setCandidates] = useState([]);
+    const [selectedCandidates, setSelectedCandidates] = useState([]);
 
     useEffect(() => {
         fetchData();
@@ -103,6 +111,14 @@ function MatchingPage() {
             ]);
             setJobs(jobsRes.data.jobs?.filter((j) => j.status === 'compressed') || []);
             setCandidateCount(candRes.data.total || 0);
+
+            // Also load full candidate list for individual mode
+            try {
+                const allCandRes = await resumeApi.list(1, 100, 'compressed');
+                setCandidates(allCandRes.data.candidates || []);
+            } catch {
+                setCandidates([]);
+            }
         } catch (err) {
             // Demo fallback
             setJobs([
@@ -126,7 +142,10 @@ function MatchingPage() {
         setStatus('pending');
 
         try {
-            const response = await matchApi.run(selectedJob, null, config);
+            const candidateIds = matchMode === 'individual' && selectedCandidates.length > 0
+                ? selectedCandidates.map(c => c.id)
+                : null;
+            const response = await matchApi.run(selectedJob, candidateIds, config);
             setSessionId(response.data.id);
         } catch (err) {
             // Safely extract error message — FastAPI validation errors are arrays
@@ -149,7 +168,7 @@ function MatchingPage() {
                     p = 100;
                     clearInterval(interval);
                     setMatching(false);
-                    setSuccess('🎉 Matching complete! 42 candidates scored and ranked.');
+                    setSuccess(`🎉 Matching complete! ${matchMode === 'individual' ? selectedCandidates.length + ' candidate(s)' : '42 candidates'} scored and ranked.`);
                     setStatus('completed');
                 }
                 setProgress(Math.min(100, p));
@@ -170,7 +189,7 @@ function MatchingPage() {
                         fontFamily: "'Outfit', sans-serif",
                         fontWeight: 800,
                         mb: 1,
-                        background: 'linear-gradient(135deg, #f1f5f9, #94a3b8)',
+                        background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                     }}
@@ -212,23 +231,140 @@ function MatchingPage() {
                                     </Select>
                                 </FormControl>
 
-                                {/* Candidate Count */}
-                                <Box sx={{
-                                    p: 2, mb: 3, borderRadius: 2,
-                                    background: 'rgba(99,102,241,0.08)',
-                                    border: '1px solid rgba(99,102,241,0.2)',
-                                    display: 'flex', alignItems: 'center', gap: 2,
-                                }}>
-                                    <Avatar sx={{ background: 'rgba(99,102,241,0.2)', color: '#818cf8', width: 40, height: 40 }}>
-                                        {candidateCount}
-                                    </Avatar>
-                                    <Box>
-                                        <Typography variant="body2" sx={{ fontWeight: 600 }}>candidates ready</Typography>
-                                        <Typography variant="caption" color="text.secondary">All compressed candidates will be matched</Typography>
-                                    </Box>
+                                {/* Matching Mode Toggle */}
+                                <Box sx={{ mb: 3 }}>
+                                    <Typography variant="caption" sx={{ fontWeight: 600, color: '#94a3b8', mb: 1, display: 'block', textTransform: 'uppercase', fontSize: '0.6rem' }}>
+                                        MATCHING MODE
+                                    </Typography>
+                                    <ToggleButtonGroup
+                                        value={matchMode}
+                                        exclusive
+                                        onChange={(_, v) => { if (v) setMatchMode(v); }}
+                                        disabled={matching}
+                                        fullWidth
+                                        size="small"
+                                        sx={{
+                                            '& .MuiToggleButton-root': {
+                                                textTransform: 'none', fontWeight: 600, fontSize: '0.8rem', py: 1,
+                                                color: '#64748b', borderColor: 'rgba(0,0,0,0.08)',
+                                                '&.Mui-selected': {
+                                                    color: '#6366f1',
+                                                    background: 'rgba(99,102,241,0.1)',
+                                                    borderColor: 'rgba(99,102,241,0.3)',
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        <ToggleButton value="batch">
+                                            <PeopleIcon sx={{ fontSize: 18, mr: 1 }} /> All Candidates
+                                        </ToggleButton>
+                                        <ToggleButton value="individual">
+                                            <PersonIcon sx={{ fontSize: 18, mr: 1 }} /> Individual
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
                                 </Box>
 
-                                <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.06)' }} />
+                                {/* Individual Candidate Selector */}
+                                <AnimatePresence>
+                                    {matchMode === 'individual' && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            style={{ overflow: 'hidden' }}
+                                        >
+                                            <Autocomplete
+                                                multiple
+                                                options={candidates}
+                                                disableCloseOnSelect
+                                                getOptionLabel={(option) => option.name || option.email || option.id}
+                                                value={selectedCandidates}
+                                                onChange={(_, newVal) => setSelectedCandidates(newVal)}
+                                                disabled={matching}
+                                                renderOption={(props, option, { selected }) => {
+                                                    const { key, ...rest } = props;
+                                                    return (
+                                                        <li key={key} {...rest}>
+                                                            <Checkbox
+                                                                icon={<UncheckedIcon fontSize="small" />}
+                                                                checkedIcon={<CheckedIcon fontSize="small" />}
+                                                                checked={selected}
+                                                                sx={{ mr: 1 }}
+                                                            />
+                                                            <Box>
+                                                                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.85rem' }}>
+                                                                    {option.name || 'Unnamed'}
+                                                                </Typography>
+                                                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                                                    {option.email || 'No email'} • {(option.skills || []).slice(0, 3).join(', ') || 'No skills'} • {option.experience_years || 0}y exp
+                                                                </Typography>
+                                                            </Box>
+                                                        </li>
+                                                    );
+                                                }}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Select Candidate(s)"
+                                                        placeholder="Search by name..."
+                                                        size="small"
+                                                    />
+                                                )}
+                                                renderTags={(value, getTagProps) =>
+                                                    value.map((option, index) => {
+                                                        const { key, ...rest } = getTagProps({ index });
+                                                        return (
+                                                            <Chip
+                                                                key={key}
+                                                                {...rest}
+                                                                label={option.name || option.id?.slice(0, 8)}
+                                                                size="small"
+                                                                avatar={<Avatar sx={{ width: 20, height: 20, fontSize: '0.6rem', background: 'rgba(99,102,241,0.2)', color: '#6366f1' }}>{(option.name || '?')[0]}</Avatar>}
+                                                                sx={{
+                                                                    fontSize: '0.7rem', fontWeight: 600,
+                                                                    background: 'rgba(99,102,241,0.1)',
+                                                                    border: '1px solid rgba(99,102,241,0.2)',
+                                                                }}
+                                                            />
+                                                        );
+                                                    })
+                                                }
+                                                sx={{ mb: 2 }}
+                                            />
+                                            {selectedCandidates.length > 0 && (
+                                                <Box sx={{
+                                                    p: 1.5, mb: 2, borderRadius: 2,
+                                                    background: 'rgba(16,185,129,0.06)',
+                                                    border: '1px solid rgba(16,185,129,0.15)',
+                                                }}>
+                                                    <Typography variant="caption" sx={{ color: '#34d399', fontWeight: 600 }}>
+                                                        ✓ {selectedCandidates.length} candidate{selectedCandidates.length > 1 ? 's' : ''} selected for individual matching
+                                                    </Typography>
+                                                </Box>
+                                            )}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                {/* Candidate Count (batch mode) */}
+                                {matchMode === 'batch' && (
+                                    <Box sx={{
+                                        p: 2, mb: 3, borderRadius: 2,
+                                        background: 'rgba(99,102,241,0.08)',
+                                        border: '1px solid rgba(99,102,241,0.2)',
+                                        display: 'flex', alignItems: 'center', gap: 2,
+                                    }}>
+                                        <Avatar sx={{ background: 'rgba(99,102,241,0.2)', color: '#6366f1', width: 40, height: 40 }}>
+                                            {candidateCount}
+                                        </Avatar>
+                                        <Box>
+                                            <Typography variant="body2" sx={{ fontWeight: 600 }}>candidates ready</Typography>
+                                            <Typography variant="caption" color="text.secondary">All compressed candidates will be matched</Typography>
+                                        </Box>
+                                    </Box>
+                                )}
+
+                                <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.06)' }} />
 
                                 {/* Weight Sliders */}
                                 <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600, color: '#94a3b8' }}>
@@ -274,11 +410,16 @@ function MatchingPage() {
                                     fullWidth
                                     size="large"
                                     onClick={handleRunMatching}
-                                    disabled={!selectedJob || matching}
+                                    disabled={!selectedJob || matching || (matchMode === 'individual' && selectedCandidates.length === 0)}
                                     startIcon={matching ? <SpeedIcon /> : <PlayIcon />}
                                     sx={{ py: 1.5 }}
                                 >
-                                    {matching ? 'Matching in Progress...' : 'Run Matching Engine'}
+                                    {matching
+                                        ? 'Matching in Progress...'
+                                        : matchMode === 'individual'
+                                            ? `Match ${selectedCandidates.length || 0} Candidate${selectedCandidates.length !== 1 ? 's' : ''}`
+                                            : 'Run Matching Engine'
+                                    }
                                 </Button>
                             </CardContent>
                         </Card>
@@ -347,7 +488,7 @@ function MatchingPage() {
                                                         sx={{
                                                             fontFamily: "'Outfit', sans-serif",
                                                             fontWeight: 800,
-                                                            color: status === 'completed' ? '#10b981' : '#818cf8',
+                                                            color: status === 'completed' ? '#10b981' : '#6366f1',
                                                         }}
                                                     >
                                                         {progress.toFixed(0)}%
@@ -399,8 +540,8 @@ function MatchingPage() {
                                                 p: 2,
                                                 mb: 1,
                                                 borderRadius: 2,
-                                                background: 'rgba(255,255,255,0.02)',
-                                                border: '1px solid rgba(255,255,255,0.04)',
+                                                background: 'rgba(0,0,0,0.02)',
+                                                border: '1px solid rgba(0,0,0,0.04)',
                                                 transition: 'all 200ms ease',
                                                 '&:hover': {
                                                     borderColor: 'rgba(99,102,241,0.2)',

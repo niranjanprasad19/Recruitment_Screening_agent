@@ -22,6 +22,7 @@ import {
     Assessment as ReportIcon,
     AutoAwesome as AIIcon,
     Logout as LogoutIcon,
+    Shield as ShieldIcon,
 } from '@mui/icons-material';
 
 import LoginPage from './pages/LoginPage';
@@ -30,6 +31,9 @@ import UploadPage from './pages/UploadPage';
 import JobsPage from './pages/JobsPage';
 import MatchingPage from './pages/MatchingPage';
 import ResultsPage from './pages/ResultsPage';
+import GdprPage from './pages/GdprPage';
+import CandidateDetailPage from './pages/CandidateDetailPage';
+import JobAnalyticsPage from './pages/JobAnalyticsPage';
 
 const DRAWER_WIDTH = 260;
 
@@ -39,6 +43,7 @@ const navItems = [
     { path: '/jobs', label: 'Job Descriptions', icon: <JobIcon /> },
     { path: '/matching', label: 'Run Matching', icon: <MatchIcon /> },
     { path: '/results', label: 'Results & Reports', icon: <ReportIcon /> },
+    { path: '/gdpr', label: 'GDPR Compliance', icon: <ShieldIcon /> },
 ];
 
 function AnimatedRoutes() {
@@ -51,6 +56,9 @@ function AnimatedRoutes() {
                 <Route path="/jobs" element={<PageWrapper><JobsPage /></PageWrapper>} />
                 <Route path="/matching" element={<PageWrapper><MatchingPage /></PageWrapper>} />
                 <Route path="/results" element={<PageWrapper><ResultsPage /></PageWrapper>} />
+                <Route path="/gdpr" element={<PageWrapper><GdprPage /></PageWrapper>} />
+                <Route path="/candidate/:candidateId" element={<PageWrapper><CandidateDetailPage /></PageWrapper>} />
+                <Route path="/job/:jobId/analytics" element={<PageWrapper><JobAnalyticsPage /></PageWrapper>} />
             </Routes>
         </AnimatePresence>
     );
@@ -146,7 +154,7 @@ function App() {
                 }} />
             </Box>
 
-            <Divider sx={{ borderColor: 'rgba(255,255,255,0.06)' }} />
+            <Divider sx={{ borderColor: 'rgba(0,0,0,0.06)' }} />
 
             {/* Navigation */}
             <List sx={{ px: 1.5, py: 2, flex: 1 }}>
@@ -158,17 +166,17 @@ function App() {
                                 borderRadius: 2, mb: 0.5, px: 2, py: 1.2,
                                 transition: 'all 200ms ease',
                                 background: isActive
-                                    ? 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(6,182,212,0.08))'
+                                    ? 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.05))'
                                     : 'transparent',
                                 borderLeft: isActive ? '3px solid #6366f1' : '3px solid transparent',
                                 '&:hover': {
                                     background: isActive
-                                        ? 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(6,182,212,0.1))'
-                                        : 'rgba(255,255,255,0.04)',
+                                        ? 'linear-gradient(135deg, rgba(99,102,241,0.14), rgba(6,182,212,0.07))'
+                                        : 'rgba(99,102,241,0.04)',
                                 },
                             }}>
                                 <ListItemIcon sx={{
-                                    color: isActive ? '#818cf8' : '#64748b',
+                                    color: isActive ? '#6366f1' : '#94a3b8',
                                     minWidth: 40, transition: 'color 200ms ease',
                                 }}>
                                     {item.icon}
@@ -177,7 +185,7 @@ function App() {
                                     primaryTypographyProps={{
                                         fontSize: '0.875rem',
                                         fontWeight: isActive ? 600 : 400,
-                                        color: isActive ? '#f1f5f9' : '#94a3b8',
+                                        color: isActive ? '#1e293b' : '#64748b',
                                     }} />
                             </ListItem>
                         )}
@@ -186,7 +194,7 @@ function App() {
             </List>
 
             {/* User Profile Section */}
-            <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <Box sx={{ p: 2, borderTop: '1px solid rgba(0,0,0,0.06)' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
                     <Avatar sx={{
                         width: 36, height: 36,
@@ -260,8 +268,8 @@ function App() {
                                 label="AI Powered"
                                 size="small"
                                 sx={{
-                                    background: 'rgba(16,185,129,0.15)', color: '#34d399',
-                                    border: '1px solid rgba(16,185,129,0.3)',
+                                    background: 'rgba(16,185,129,0.1)', color: '#059669',
+                                    border: '1px solid rgba(16,185,129,0.2)',
                                     fontWeight: 600, fontSize: '0.7rem',
                                 }}
                             />

@@ -184,8 +184,9 @@ async def export_report(
             "bias_adjusted": r.bias_adjusted or False,
         })
     
+    from app.services.reports import ReportGenerator
+    
     if request.format == "csv":
-        from app.services.reports import ReportGenerator
         csv_content = ReportGenerator.generate_csv(results, job_title)
         return StreamingResponse(
             io.StringIO(csv_content),
@@ -194,5 +195,160 @@ async def export_report(
         )
     elif request.format == "json":
         return JSONResponse(content={"report": {"job_title": job_title, "results": results}})
+    elif request.format == "pdf":
+        pdf_bytes = ReportGenerator.generate_pdf(results, job_title)
+        if not pdf_bytes:
+            raise HTTPException(
+                status_code=503,
+                detail="PDF generation unavailable. Install 'reportlab' to enable PDF exports."
+            )
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename=report_{session.id}.pdf"}
+        )
     else:
-        raise HTTPException(status_code=400, detail="Unsupported format. Use 'csv' or 'json'.")
+        raise HTTPException(status_code=400, detail="Unsupported format. Use 'csv', 'json', or 'pdf'.")
+
+
+@router.get("/dashboard/job/{job_id}/analytics")
+async def get_job_analytics(
+    job_id: str,
+    db: Session = Depends(get_db),
+):
+    """Per-job analytics: score distributions, skill coverage, experience breakdown, top candidates."""
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    # All match sessions for this job
+    sessions = db.query(MatchSession).filter(MatchSession.job_id == job_id).order_by(desc(MatchSession.created_at)).all()
+    session_ids = [s.id for s in sessions]
+
+    # All match results across sessions
+    results = []
+    if session_ids:
+        results = db.query(MatchResult).filter(MatchResult.session_id.in_(session_ids)).all()
+
+    total_matched = len(results)
+
+    # Score distribution (buckets: 0-10, 10-20, ..., 90-100)
+    score_buckets = [0] * 10
+    skill_scores, exp_scores, edu_scores, sem_scores, overall_scores = [], [], [], [], []
+    for r in results:
+        score = float(r.overall_score or 0) * 100
+        bucket = min(int(score // 10), 9)
+        score_buckets[bucket] += 1
+        overall_scores.append(float(r.overall_score or 0))
+        skill_scores.append(float(r.skill_score or 0))
+        exp_scores.append(float(r.experience_score or 0))
+        edu_scores.append(float(r.education_score or 0))
+        sem_scores.append(float(r.semantic_score or 0))
+
+    score_distribution = [
+        {"range": f"{i*10}-{i*10+10}", "count": score_buckets[i]} for i in range(10)
+    ]
+
+    avg = lambda lst: round(sum(lst) / len(lst), 4) if lst else 0.0
+
+    # Top candidates for this job
+    top_results = sorted(results, key=lambda r: float(r.overall_score or 0), reverse=True)[:10]
+    top_candidates = []
+    seen = set()
+    for r in top_results:
+        if r.candidate_id in seen:
+            continue
+        seen.add(r.candidate_id)
+        candidate = db.query(Candidate).filter(Candidate.id == r.candidate_id).first()
+        if candidate:
+            top_candidates.append({
+                "candidate_id": candidate.id,
+                "name": candidate.name or "Unknown",
+                "email": candidate.email or "",
+                "overall_score": float(r.overall_score or 0),
+                "skill_score": float(r.skill_score or 0),
+                "experience_score": float(r.experience_score or 0),
+                "education_score": float(r.education_score or 0),
+                "skills": (candidate.skills or [])[:8],
+                "experience_years": float(candidate.experience_years) if candidate.experience_years else 0,
+                "bias_adjusted": r.bias_adjusted or False,
+                "rank": r.rank,
+            })
+
+    # Skill coverage — what % of candidates have each required skill
+    required_skills = job.required_skills or []
+    skill_coverage = []
+    if required_skills and results:
+        cand_ids = list({r.candidate_id for r in results})
+        cands = db.query(Candidate).filter(Candidate.id.in_(cand_ids)).all()
+        for sk in required_skills[:12]:
+            matched = sum(1 for c in cands if c.skills and sk.lower() in [s.lower() for s in c.skills])
+            skill_coverage.append({
+                "skill": sk,
+                "matched": matched,
+                "total": len(cands),
+                "percent": round(matched / len(cands) * 100, 1) if cands else 0,
+            })
+
+    # Experience distribution
+    exp_dist = {"0-2": 0, "3-5": 0, "6-10": 0, "10+": 0}
+    if results:
+        cand_ids = list({r.candidate_id for r in results})
+        cands = db.query(Candidate).filter(Candidate.id.in_(cand_ids)).all()
+        for c in cands:
+            yr = float(c.experience_years) if c.experience_years else 0
+            if yr <= 2:
+                exp_dist["0-2"] += 1
+            elif yr <= 5:
+                exp_dist["3-5"] += 1
+            elif yr <= 10:
+                exp_dist["6-10"] += 1
+            else:
+                exp_dist["10+"] += 1
+
+    # Session history
+    session_list = []
+    for s in sessions[:10]:
+        session_list.append({
+            "id": s.id,
+            "status": s.status,
+            "total_candidates": s.total_candidates or 0,
+            "processed_candidates": s.processed_candidates or 0,
+            "created_at": s.created_at.isoformat() if s.created_at else None,
+            "completed_at": s.completed_at.isoformat() if s.completed_at else None,
+        })
+
+    # Bias stats
+    bias_adjusted_count = sum(1 for r in results if r.bias_adjusted)
+
+    return {
+        "job": {
+            "id": job.id,
+            "title": job.title,
+            "company": job.company or "",
+            "department": job.department or "",
+            "location": job.location or "",
+            "status": job.status,
+            "required_skills": required_skills,
+            "created_at": job.created_at.isoformat() if job.created_at else None,
+        },
+        "summary": {
+            "total_matched": total_matched,
+            "total_sessions": len(sessions),
+            "avg_overall_score": avg(overall_scores),
+            "avg_skill_score": avg(skill_scores),
+            "avg_experience_score": avg(exp_scores),
+            "avg_education_score": avg(edu_scores),
+            "avg_semantic_score": avg(sem_scores),
+            "highest_score": round(max(overall_scores), 4) if overall_scores else 0.0,
+            "lowest_score": round(min(overall_scores), 4) if overall_scores else 0.0,
+            "bias_adjusted_count": bias_adjusted_count,
+        },
+        "score_distribution": score_distribution,
+        "skill_coverage": skill_coverage,
+        "experience_distribution": [
+            {"range": k, "count": v} for k, v in exp_dist.items()
+        ],
+        "top_candidates": top_candidates,
+        "sessions": session_list,
+    }

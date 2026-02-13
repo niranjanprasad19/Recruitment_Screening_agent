@@ -140,6 +140,7 @@ export const dashboardApi = {
     getMetrics: (days = 30) => {
         return api.get('/dashboard/metrics', { params: { days } });
     },
+    getJobAnalytics: (jobId) => api.get(`/dashboard/job/${jobId}/analytics`),
 };
 
 // ============================================
@@ -170,6 +171,42 @@ export const webhookApi = {
 
     getLogs: (limit = 50) => {
         return api.get('/webhooks/ats/logs', { params: { limit } });
+    },
+};
+
+// ============================================
+// GDPR Compliance APIs
+// ============================================
+
+export const gdprApi = {
+    getStatus: () => api.get('/gdpr/status'),
+
+    getRetentionPolicy: () => api.get('/gdpr/retention-policy'),
+
+    recordConsent: (entityType, entityId, consentGiven, purpose = 'recruitment_screening') => {
+        return api.post('/gdpr/consent', {
+            entity_type: entityType,
+            entity_id: entityId,
+            consent_given: consentGiven,
+            purpose,
+        });
+    },
+
+    exportData: (candidateId) => api.get(`/gdpr/export/${candidateId}`),
+
+    deleteData: (entityType, entityId, reason = 'user_request') => {
+        return api.post('/gdpr/delete', {
+            entity_type: entityType,
+            entity_id: entityId,
+            reason,
+        });
+    },
+
+    getAuditTrail: (entityId = null, entityType = null, limit = 50) => {
+        const params = { limit };
+        if (entityId) params.entity_id = entityId;
+        if (entityType) params.entity_type = entityType;
+        return api.get('/gdpr/audit-trail', { params });
     },
 };
 

@@ -299,13 +299,19 @@ async def get_candidate(candidate_id: str, db: Session = Depends(get_db)):
         "id": candidate.id,
         "name": candidate.name,
         "email": candidate.email,
+        "phone": candidate.phone,
         "skills": candidate.skills or [],
         "experience_years": float(candidate.experience_years) if candidate.experience_years else 0,
         "education": candidate.education,
         "status": candidate.status,
+        "original_text": candidate.original_text,
         "compressed_data": candidate.compressed_data,
         "bias_flags": candidate.bias_flags,
+        "file_name": candidate.file_name,
+        "file_type": candidate.file_type,
         "created_at": candidate.created_at.isoformat() if candidate.created_at else None,
+        "updated_at": candidate.updated_at.isoformat() if candidate.updated_at else None,
+        "expires_at": candidate.expires_at.isoformat() if candidate.expires_at else None,
     }
 
 

@@ -1,10 +1,12 @@
 /* ============================================
    RSA MVP Enhanced — Global Styles
-   Premium dark theme with glassmorphism effects
+   Premium BRIGHT theme with glassmorphism & vibrant colors
    ============================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
 :root {
-  /* Color Palette */
+  /* Color Palette — Vibrant & Bright */
   --primary: #6366f1;
   --primary-light: #818cf8;
   --primary-dark: #4f46e5;
@@ -12,51 +14,52 @@
   --secondary-light: #22d3ee;
   --accent: #f59e0b;
   --accent-light: #fbbf24;
-  
+
   /* Semantic Colors */
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
   --info: #3b82f6;
-  
-  /* Dark Theme */
-  --bg-primary: #0f0f1a;
-  --bg-secondary: #1a1a2e;
-  --bg-tertiary: #16213e;
-  --bg-card: rgba(26, 26, 46, 0.8);
-  --bg-glass: rgba(255, 255, 255, 0.05);
-  
+
+  /* Light Bright Theme */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-glass: rgba(255, 255, 255, 0.7);
+
   /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
   /* Borders */
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(99, 102, 241, 0.3);
-  
+  --border-color: rgba(0, 0, 0, 0.07);
+  --border-glow: rgba(99, 102, 241, 0.35);
+
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
   --gradient-secondary: linear-gradient(135deg, #ec4899 0%, #f59e0b 100%);
-  --gradient-dark: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
-  --gradient-card: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(6,182,212,0.05) 100%);
-  
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.15);
-  
+  --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-card: linear-gradient(135deg, rgba(99, 102, 241, 0.06) 0%, rgba(6, 182, 212, 0.03) 100%);
+
+  /* Shadows — softer for bright theme */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.12);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
+
   /* Typography */
   --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: 'Outfit', 'Inter', sans-serif;
-  
+
   /* Spacing */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  
+
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -67,7 +70,9 @@
    Reset & Base
    ============================================ */
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -88,7 +93,7 @@ body {
   line-height: 1.6;
 }
 
-/* Animated background gradient */
+/* Bright animated background — subtle color blobs */
 body::before {
   content: '';
   position: fixed;
@@ -96,10 +101,11 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(236, 72, 153, 0.04) 0%, transparent 50%);
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(236, 72, 153, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 70%, rgba(245, 158, 11, 0.03) 0%, transparent 40%);
   pointer-events: none;
   z-index: 0;
 }
@@ -110,7 +116,7 @@ body::before {
 }
 
 /* ============================================
-   Scrollbar
+   Scrollbar — light theme
    ============================================ */
 
 ::-webkit-scrollbar {
@@ -119,20 +125,20 @@ body::before {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--primary-dark);
+  background: #c7d2fe;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: #a5b4fc;
 }
 
 /* ============================================
-   Glass Card Effect
+   Glass Card Effect — Bright
    ============================================ */
 
 .glass-card {
@@ -141,7 +147,7 @@ body::before {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-card);
   transition: all var(--transition-smooth);
 }
 
@@ -157,7 +163,7 @@ body::before {
 
 .score-bar {
   height: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.06);
   border-radius: 4px;
   overflow: hidden;
   position: relative;
@@ -178,13 +184,18 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ============================================
@@ -213,14 +224,14 @@ body::before {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
   opacity: 0;
   transition: opacity var(--transition-smooth);
 }
 
 .glow-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35);
 }
 
 .glow-button:hover::before {
@@ -236,8 +247,15 @@ body::before {
    ============================================ */
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-  50% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 0 0 15px rgba(99, 102, 241, 0);
+  }
 }
 
 .pulse {
@@ -249,8 +267,15 @@ body::before {
    ============================================ */
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .float {
@@ -273,7 +298,7 @@ body::before {
 }
 
 /* ============================================
-   Status Badges
+   Status Badges — Bright
    ============================================ */
 
 .status-badge {
@@ -289,33 +314,148 @@ body::before {
 }
 
 .status-badge.uploaded {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .status-badge.processing {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 .status-badge.compressed {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .status-badge.error {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .status-badge.completed {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* ============================================
+   MUI Overrides — Bright Theme
+   ============================================ */
+
+/* Cards */
+.MuiCard-root {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 16px !important;
+  transition: all 300ms ease !important;
+}
+
+.MuiCard-root:hover {
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.1) !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Sidebar */
+.MuiDrawer-paper {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* AppBar */
+.MuiAppBar-root {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Buttons */
+.MuiButton-contained {
+  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25) !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  transition: all 300ms ease !important;
+}
+
+.MuiButton-contained:hover {
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+/* Chips */
+.MuiChip-root {
+  border-radius: 8px !important;
+}
+
+/* Linear Progress */
+.MuiLinearProgress-root {
+  border-radius: 6px !important;
+  background: rgba(99, 102, 241, 0.08) !important;
+}
+
+.MuiLinearProgress-bar {
+  border-radius: 6px !important;
+  background: linear-gradient(90deg, #6366f1, #06b6d4) !important;
+}
+
+/* Dividers */
+.MuiDivider-root {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Select / Input fields */
+.MuiOutlinedInput-root {
+  border-radius: 12px !important;
+}
+
+.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #6366f1 !important;
+}
+
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #6366f1 !important;
+  border-width: 2px !important;
+}
+
+/* Slider */
+.MuiSlider-root {
+  color: #6366f1 !important;
+}
+
+/* Switch */
+.MuiSwitch-switchBase.Mui-checked {
+  color: #6366f1 !important;
+}
+
+.MuiSwitch-switchBase.Mui-checked+.MuiSwitch-track {
+  background-color: #6366f1 !important;
+}
+
+/* Alert */
+.MuiAlert-root {
+  border-radius: 12px !important;
+}
+
+/* Tooltip */
+.MuiTooltip-tooltip {
+  background: #1e293b !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
 }
 
 /* ============================================

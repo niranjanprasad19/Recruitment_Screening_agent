@@ -5,18 +5,13 @@ Tests for FastAPI endpoints using TestClient.
 """
 
 import pytest
-import os
 import io
 from fastapi.testclient import TestClient
 
-
-# We need to set environment variables before importing the app
-os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
-os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
-
+# Import app (which was already configured by conftest.py)
 from app.main import app
 
-
+# Create test client
 client = TestClient(app)
 
 

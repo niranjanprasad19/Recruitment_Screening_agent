@@ -16,6 +16,7 @@ from pydantic import BaseModel
 from app.database import get_db
 from app.config import settings
 from app.models.job import Job
+from app.models.match import MatchSession
 from app.models.audit import AuditLog
 from app.services.parser import FileParser
 from app.services.compressor import JDCompressor
@@ -249,6 +250,9 @@ async def delete_job(job_id: str, db: Session = Depends(get_db)):
     
     audit = AuditLog(entity_type="job", entity_id=job_id, action="deleted", details={"title": job.title})
     db.add(audit)
+    
+    # Cascade delete match sessions
+    db.query(MatchSession).filter(MatchSession.job_id == job_id).delete()
     
     db.delete(job)
     db.commit()

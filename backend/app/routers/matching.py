@@ -227,12 +227,15 @@ async def list_sessions(
     result = []
     for s in sessions:
         job = db.query(Job).filter(Job.id == s.job_id).first()
+        if not job:
+            continue
+
         progress = (s.processed_candidates / s.total_candidates * 100) if s.total_candidates and s.total_candidates > 0 else 0
         
         result.append({
             "id": s.id,
             "job_id": s.job_id,
-            "job_title": job.title if job else "Unknown",
+            "job_title": job.title,
             "status": s.status,
             "total_candidates": s.total_candidates or 0,
             "processed_candidates": s.processed_candidates or 0,

@@ -9,6 +9,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import ReactFlow, { Background, Controls, MiniMap } from 'react-flow-renderer';
 import {
     Box, Typography, Card, CardContent, Grid, Button,
@@ -23,6 +24,7 @@ import {
     AccountTree as FlowIcon,
     TableChart as TableIcon,
     Star as StarIcon,
+    PersonSearch as PersonSearchIcon,
 } from '@mui/icons-material';
 import { matchApi, reportApi } from '../services/api';
 
@@ -146,6 +148,26 @@ function CandidateCard({ result, index }) {
                             </Typography>
                         </Box>
 
+                        {/* View Resume Button */}
+                        {result.candidate_id && (
+                            <Tooltip title="View full resume">
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.location.href = `/candidate/${result.candidate_id}`;
+                                    }}
+                                    sx={{
+                                        color: '#6366f1',
+                                        background: 'rgba(99,102,241,0.08)',
+                                        '&:hover': { background: 'rgba(99,102,241,0.18)' },
+                                    }}
+                                >
+                                    <PersonSearchIcon sx={{ fontSize: 20 }} />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+
                         {/* Overall Score */}
                         <Box sx={{ textAlign: 'center' }}>
                             <AnimatedScore score={result.overall_score} delay={index * 0.1} />
@@ -185,7 +207,7 @@ function CandidateCard({ result, index }) {
                                     sx={{
                                         height: 6,
                                         borderRadius: 3,
-                                        backgroundColor: 'rgba(255,255,255,0.06)',
+                                        backgroundColor: 'rgba(0,0,0,0.06)',
                                         '& .MuiLinearProgress-bar': { background: dim.color, borderRadius: 3 },
                                     }}
                                 />
@@ -201,7 +223,7 @@ function CandidateCard({ result, index }) {
                                 animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
                             >
-                                <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.06)' }} />
+                                <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.06)' }} />
                                 <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, mb: 1, display: 'block' }}>
                                     Candidate Skills
                                 </Typography>
@@ -269,9 +291,9 @@ function MatchJourneyFlow({ results, jobTitle }) {
             style: {
                 background: result.rank === 1
                     ? 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.1))'
-                    : 'rgba(26, 26, 46, 0.9)',
-                color: '#f1f5f9',
-                border: result.rank === 1 ? '2px solid #f59e0b' : '1px solid rgba(255,255,255,0.1)',
+                    : 'rgba(255, 255, 255, 0.95)',
+                color: '#1e293b',
+                border: result.rank === 1 ? '2px solid #f59e0b' : '1px solid rgba(0,0,0,0.08)',
                 borderRadius: 10,
                 padding: '8px 16px',
                 fontWeight: result.rank <= 3 ? 600 : 400,
@@ -293,16 +315,16 @@ function MatchJourneyFlow({ results, jobTitle }) {
     ];
 
     return (
-        <Box sx={{ height: 450, borderRadius: 3, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <Box sx={{ height: 450, borderRadius: 3, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.06)' }}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
                 fitView
                 attributionPosition="bottom-left"
-                style={{ background: '#0f0f1a' }}
+                style={{ background: '#f8fafc' }}
             >
-                <Background color="rgba(255,255,255,0.03)" gap={20} />
-                <Controls style={{ background: '#1a1a2e', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }} />
+                <Background color="rgba(99,102,241,0.06)" gap={20} />
+                <Controls style={{ background: '#fff', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)' }} />
             </ReactFlow>
         </Box>
     );
@@ -393,7 +415,7 @@ function ResultsPage() {
                         fontFamily: "'Outfit', sans-serif",
                         fontWeight: 800,
                         mb: 1,
-                        background: 'linear-gradient(135deg, #f1f5f9, #94a3b8)',
+                        background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                     }}

@@ -86,7 +86,7 @@ function LoginPage({ onLogin }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #0f0f1a 0%, #1a1a3e 50%, #0f0f1a 100%)',
+            background: 'linear-gradient(135deg, #f0f4ff 0%, #e8f4f8 50%, #fdf2f8 100%)',
             position: 'relative',
             overflow: 'hidden',
         }}>
@@ -140,7 +140,7 @@ function LoginPage({ onLogin }) {
                     </motion.div>
                     <Typography variant="h4" sx={{
                         fontFamily: "'Outfit', sans-serif", fontWeight: 800,
-                        background: 'linear-gradient(135deg, #f1f5f9, #818cf8)',
+                        background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
                         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                     }}>
                         RSA
@@ -151,10 +151,10 @@ function LoginPage({ onLogin }) {
                 </Box>
 
                 <Card sx={{
-                    background: 'rgba(26, 26, 46, 0.95)',
+                    background: 'rgba(255, 255, 255, 0.95)',
                     backdropFilter: 'blur(30px)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+                    border: '1px solid rgba(0,0,0,0.06)',
+                    boxShadow: '0 20px 60px rgba(99,102,241,0.12)',
                 }}>
                     <CardContent sx={{ p: 4 }}>
                         <Tabs value={tab} onChange={(_, v) => { setTab(v); setError(''); }}

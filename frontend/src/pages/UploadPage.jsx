@@ -7,6 +7,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import {
     Box, Typography, Card, CardContent, Grid, Button,
@@ -23,6 +24,7 @@ import {
     Description as DocIcon,
     PictureAsPdf as PdfIcon,
     TextSnippet as TxtIcon,
+    PersonSearch as PersonSearchIcon,
 } from '@mui/icons-material';
 import { resumeApi } from '../services/api';
 
@@ -42,7 +44,7 @@ function getFileIcon(filename) {
         case 'pdf': return <PdfIcon sx={{ color: '#ef4444' }} />;
         case 'docx': case 'doc': return <DocIcon sx={{ color: '#3b82f6' }} />;
         case 'txt': return <TxtIcon sx={{ color: '#10b981' }} />;
-        default: return <FileIcon sx={{ color: '#94a3b8' }} />;
+        default: return <FileIcon sx={{ color: '#64748b' }} />;
     }
 }
 
@@ -59,7 +61,7 @@ function ProcessingTimeline({ currentStep }) {
                         left: '5%',
                         right: '5%',
                         height: 2,
-                        background: 'rgba(255,255,255,0.08)',
+                        background: 'rgba(0,0,0,0.08)',
                         transform: 'translateY(-50%)',
                         zIndex: 0,
                     }}
@@ -110,10 +112,10 @@ function ProcessingTimeline({ currentStep }) {
                                         background: isCompleted
                                             ? 'linear-gradient(135deg, #10b981, #06b6d4)'
                                             : isActive
-                                                ? 'linear-gradient(135deg, #6366f1, #818cf8)'
-                                                : 'rgba(255,255,255,0.06)',
-                                        border: isActive ? '2px solid #818cf8' : '2px solid transparent',
-                                        boxShadow: isActive ? '0 0 20px rgba(99,102,241,0.4)' : 'none',
+                                                ? 'linear-gradient(135deg, #6366f1, #06b6d4)'
+                                                : 'rgba(0,0,0,0.06)',
+                                        border: isActive ? '2px solid #6366f1' : '2px solid transparent',
+                                        boxShadow: isActive ? '0 0 20px rgba(99,102,241,0.25)' : 'none',
                                         transition: 'all 300ms ease',
                                     }}
                                 >
@@ -125,7 +127,7 @@ function ProcessingTimeline({ currentStep }) {
                                 sx={{
                                     display: 'block',
                                     fontWeight: isActive || isCompleted ? 600 : 400,
-                                    color: isActive ? '#818cf8' : isCompleted ? '#34d399' : '#64748b',
+                                    color: isActive ? '#6366f1' : isCompleted ? '#34d399' : '#64748b',
                                     fontSize: '0.7rem',
                                 }}
                             >
@@ -140,6 +142,7 @@ function ProcessingTimeline({ currentStep }) {
 }
 
 function UploadPage() {
+    const navigate = useNavigate();
     const [files, setFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [uploadResults, setUploadResults] = useState([]);
@@ -240,7 +243,7 @@ function UploadPage() {
                         fontFamily: "'Outfit', sans-serif",
                         fontWeight: 800,
                         mb: 1,
-                        background: 'linear-gradient(135deg, #f1f5f9, #94a3b8)',
+                        background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                     }}
@@ -302,10 +305,10 @@ function UploadPage() {
                                         cursor: 'pointer',
                                         borderRadius: 3,
                                         border: '2px dashed',
-                                        borderColor: isDragActive ? '#6366f1' : 'rgba(255,255,255,0.1)',
+                                        borderColor: isDragActive ? '#6366f1' : 'rgba(0,0,0,0.1)',
                                         background: isDragActive
                                             ? 'rgba(99,102,241,0.08)'
-                                            : 'rgba(255,255,255,0.02)',
+                                            : 'rgba(0,0,0,0.02)',
                                         transition: 'all 300ms ease',
                                         '&:hover': {
                                             borderColor: 'rgba(99,102,241,0.5)',
@@ -357,8 +360,8 @@ function UploadPage() {
                                                             sx={{
                                                                 borderRadius: 2,
                                                                 mb: 1,
-                                                                background: 'rgba(255,255,255,0.03)',
-                                                                border: '1px solid rgba(255,255,255,0.06)',
+                                                                background: 'rgba(0,0,0,0.03)',
+                                                                border: '1px solid rgba(0,0,0,0.06)',
                                                             }}
                                                             secondaryAction={
                                                                 <IconButton edge="end" onClick={() => removeFile(index)} disabled={uploading}>
@@ -503,6 +506,21 @@ function UploadPage() {
                                                                 color: result.status === 'success' ? '#34d399' : '#f87171',
                                                             }}
                                                         />
+                                                        {result.status === 'success' && result.data?.id && (
+                                                            <Button
+                                                                size="small"
+                                                                startIcon={<PersonSearchIcon sx={{ fontSize: 14 }} />}
+                                                                onClick={() => navigate(`/candidate/${result.data.id}`)}
+                                                                sx={{
+                                                                    ml: 1, textTransform: 'none',
+                                                                    fontSize: '0.7rem', fontWeight: 600,
+                                                                    color: '#6366f1',
+                                                                    '&:hover': { background: 'rgba(99,102,241,0.08)' },
+                                                                }}
+                                                            >
+                                                                View Profile
+                                                            </Button>
+                                                        )}
                                                     </Box>
                                                 </motion.div>
                                             ))}

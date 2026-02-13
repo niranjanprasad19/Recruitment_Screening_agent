@@ -1,8 +1,8 @@
 /**
  * RSA MVP Enhanced — Dashboard Page (Redesigned)
  * =================================================
- * Shows: Active Jobs, Candidate Count, Leaderboard, Rankings
- * No analytics charts — this is a recruitment command center.
+ * Shows: Active Jobs, Candidate Count, Leaderboard, Rankings,
+ * and animated analytics charts (Recharts).
  */
 
 import React, { useState, useEffect } from 'react';
@@ -24,6 +24,11 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { dashboardApi } from '../services/api';
+import {
+    RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+    Radar, PieChart, Pie, Cell, ResponsiveContainer,
+    Tooltip as RechartsTooltip, Legend,
+} from 'recharts';
 
 // Animated counter component
 function AnimatedCounter({ value, duration = 1.5 }) {
@@ -100,7 +105,7 @@ function DashboardPage() {
         if (rank === 1) return { bg: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))', border: '1px solid rgba(245,158,11,0.4)', emoji: '🥇', color: '#f59e0b' };
         if (rank === 2) return { bg: 'linear-gradient(135deg, rgba(148,163,184,0.12), rgba(148,163,184,0.04))', border: '1px solid rgba(148,163,184,0.3)', emoji: '🥈', color: '#94a3b8' };
         if (rank === 3) return { bg: 'linear-gradient(135deg, rgba(205,127,50,0.12), rgba(205,127,50,0.04))', border: '1px solid rgba(205,127,50,0.3)', emoji: '🥉', color: '#cd7f32' };
-        return { bg: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', emoji: `#${rank}`, color: '#64748b' };
+        return { bg: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.06)', emoji: `#${rank}`, color: '#64748b' };
     };
 
     const getScoreColor = (score) => {
@@ -117,7 +122,7 @@ function DashboardPage() {
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
                 <Typography variant="h4" sx={{
                     fontFamily: "'Outfit', sans-serif", fontWeight: 800, mb: 0.5,
-                    background: 'linear-gradient(135deg, #f1f5f9, #94a3b8)',
+                    background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
                     WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 }}>
                     Command Center
@@ -159,6 +164,114 @@ function DashboardPage() {
                 ))}
             </Grid>
 
+            {/* Analytics Charts Row */}
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+                {/* Radar Chart — Score Dimensions */}
+                <Grid item xs={12} md={6}>
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+                        <Card>
+                            <CardContent sx={{ p: 3 }}>
+                                <Typography variant="h6" sx={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, mb: 2 }}>
+                                    📊 Score Breakdown
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                                    Average scores across matching dimensions
+                                </Typography>
+                                <ResponsiveContainer width="100%" height={280}>
+                                    <RadarChart
+                                        outerRadius={90}
+                                        data={(() => {
+                                            const lb = data.leaderboard || [];
+                                            const avg = (key) => lb.length > 0 ? lb.reduce((s, c) => s + (c[key] || 0), 0) / lb.length * 100 : 0;
+                                            return [
+                                                { dimension: 'Skills', score: Math.round(avg('skill_score')), fullMark: 100 },
+                                                { dimension: 'Experience', score: Math.round(avg('experience_score')), fullMark: 100 },
+                                                { dimension: 'Education', score: Math.round(avg('education_score')), fullMark: 100 },
+                                                { dimension: 'Overall', score: Math.round(avg('overall_score')), fullMark: 100 },
+                                            ];
+                                        })()}
+                                    >
+                                        <PolarGrid stroke="rgba(0,0,0,0.08)" />
+                                        <PolarAngleAxis dataKey="dimension" tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} />
+                                        <Radar
+                                            name="Avg Score"
+                                            dataKey="score"
+                                            stroke="#6366f1"
+                                            fill="#6366f1"
+                                            fillOpacity={0.25}
+                                            strokeWidth={2}
+                                            animationDuration={1500}
+                                        />
+                                        <RechartsTooltip
+                                            contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 8, color: '#1e293b' }}
+                                            formatter={(value) => [`${value}%`, 'Avg Score']}
+                                        />
+                                    </RadarChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                </Grid>
+
+                {/* Pie Chart — Candidate Pipeline */}
+                <Grid item xs={12} md={6}>
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                        <Card>
+                            <CardContent sx={{ p: 3 }}>
+                                <Typography variant="h6" sx={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, mb: 2 }}>
+                                    🧩 Candidate Pipeline
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                                    Distribution of candidates by processing status
+                                </Typography>
+                                <ResponsiveContainer width="100%" height={280}>
+                                    <PieChart>
+                                        <Pie
+                                            data={[
+                                                { name: 'Ready', value: data.candidates_ready || 0 },
+                                                { name: 'Pending', value: data.candidates_pending || 0 },
+                                                { name: 'Processing', value: data.candidates_processing || 0 },
+                                                { name: 'Errors', value: data.candidates_error || 0 },
+                                            ].filter(d => d.value > 0)}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={95}
+                                            paddingAngle={4}
+                                            dataKey="value"
+                                            animationDuration={1200}
+                                            animationBegin={300}
+                                        >
+                                            {[
+                                                { name: 'Ready', color: '#10b981' },
+                                                { name: 'Pending', color: '#f59e0b' },
+                                                { name: 'Processing', color: '#06b6d4' },
+                                                { name: 'Errors', color: '#ef4444' },
+                                            ].filter((_, i) => [
+                                                data.candidates_ready,
+                                                data.candidates_pending,
+                                                data.candidates_processing,
+                                                data.candidates_error,
+                                            ][i] > 0).map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} stroke="transparent" />
+                                            ))}
+                                        </Pie>
+                                        <RechartsTooltip
+                                            contentStyle={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 8, color: '#1e293b' }}
+                                        />
+                                        <Legend
+                                            iconType="circle"
+                                            wrapperStyle={{ fontSize: '0.75rem', color: '#94a3b8' }}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                </Grid>
+            </Grid>
+
             <Grid container spacing={3}>
                 {/* Active Jobs */}
                 <Grid item xs={12} md={5}>
@@ -184,24 +297,24 @@ function DashboardPage() {
                                         <motion.div key={job.id} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.08 }}>
                                             <Box sx={{
                                                 p: 2, mb: 1.5, borderRadius: 2,
-                                                background: 'rgba(255,255,255,0.02)',
-                                                border: '1px solid rgba(255,255,255,0.06)',
+                                                background: 'rgba(99,102,241,0.02)',
+                                                border: '1px solid rgba(0,0,0,0.06)',
                                                 cursor: 'pointer',
                                                 transition: 'all 200ms ease',
                                                 '&:hover': { borderColor: 'rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.04)' },
-                                            }} onClick={() => navigate('/jobs')}>
+                                            }} onClick={() => navigate(`/job/${job.id}/analytics`)}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                                                     <Box>
                                                         <Typography variant="body2" sx={{ fontWeight: 600 }}>{job.title}</Typography>
                                                         <Typography variant="caption" color="text.secondary">{job.company}{job.department ? ` · ${job.department}` : ''}</Typography>
                                                     </Box>
                                                     <Chip label={`${job.candidates_matched} matched`} size="small"
-                                                        sx={{ fontSize: '0.6rem', height: 20, background: 'rgba(16,185,129,0.12)', color: '#34d399' }} />
+                                                        sx={{ fontSize: '0.6rem', height: 20, background: 'rgba(16,185,129,0.1)', color: '#059669' }} />
                                                 </Box>
                                                 <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
                                                     {(job.required_skills || []).map(skill => (
                                                         <Chip key={skill} label={skill} size="small"
-                                                            sx={{ fontSize: '0.6rem', height: 18, background: 'rgba(99,102,241,0.08)', color: '#a5b4fc' }} />
+                                                            sx={{ fontSize: '0.6rem', height: 18, background: 'rgba(99,102,241,0.06)', color: '#6366f1' }} />
                                                     ))}
                                                 </Box>
                                             </Box>
@@ -225,7 +338,7 @@ function DashboardPage() {
                                     { label: 'Processing', count: data.candidates_processing, color: '#06b6d4', icon: <TrendIcon sx={{ fontSize: 16 }} /> },
                                     { label: 'Errors', count: data.candidates_error, color: '#ef4444', icon: <ErrorIcon sx={{ fontSize: 16 }} /> },
                                 ].map((item, i) => (
-                                    <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.2, borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                                    <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.2, borderBottom: i < 3 ? '1px solid rgba(0,0,0,0.04)' : 'none' }}>
                                         <Avatar sx={{ width: 32, height: 32, background: `${item.color}15`, color: item.color }}>{item.icon}</Avatar>
                                         <Typography variant="body2" sx={{ flex: 1, fontWeight: 500 }}>{item.label}</Typography>
                                         <Typography variant="body2" sx={{ fontWeight: 700, color: item.color }}>{item.count}</Typography>
@@ -285,14 +398,30 @@ function DashboardPage() {
                                                         width: 42, height: 42,
                                                         background: candidate.rank <= 3 ? `${rs.color}30` : 'rgba(99,102,241,0.12)',
                                                         fontWeight: 700, fontSize: '0.9rem',
-                                                        color: candidate.rank <= 3 ? rs.color : '#818cf8',
+                                                        color: candidate.rank <= 3 ? rs.color : '#6366f1',
                                                     }}>
                                                         {candidate.name?.[0] || '?'}
                                                     </Avatar>
 
                                                     {/* Info */}
                                                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                                                        <Typography variant="body2" sx={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        <Typography
+                                                            variant="body2"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (candidate.candidate_id) navigate(`/candidate/${candidate.candidate_id}`);
+                                                            }}
+                                                            sx={{
+                                                                fontWeight: 600,
+                                                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                                                cursor: candidate.candidate_id ? 'pointer' : 'default',
+                                                                '&:hover': candidate.candidate_id ? {
+                                                                    color: '#6366f1',
+                                                                    textDecoration: 'underline',
+                                                                } : {},
+                                                                transition: 'color 150ms ease',
+                                                            }}
+                                                        >
                                                             {candidate.name}
                                                         </Typography>
                                                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
@@ -301,7 +430,7 @@ function DashboardPage() {
                                                         <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
                                                             {(candidate.skills || []).slice(0, 3).map(skill => (
                                                                 <Chip key={skill} label={skill} size="small"
-                                                                    sx={{ fontSize: '0.55rem', height: 16, background: 'rgba(99,102,241,0.08)', color: '#a5b4fc' }} />
+                                                                    sx={{ fontSize: '0.55rem', height: 16, background: 'rgba(99,102,241,0.06)', color: '#6366f1' }} />
                                                             ))}
                                                         </Box>
                                                     </Box>
@@ -317,7 +446,7 @@ function DashboardPage() {
                                                         <LinearProgress variant="determinate" value={candidate.overall_score * 100}
                                                             sx={{
                                                                 mt: 0.5, height: 4, borderRadius: 2, width: 60,
-                                                                backgroundColor: 'rgba(255,255,255,0.06)',
+                                                                backgroundColor: 'rgba(0,0,0,0.06)',
                                                                 '& .MuiLinearProgress-bar': { background: getScoreColor(candidate.overall_score), borderRadius: 2 },
                                                             }} />
                                                         {candidate.bias_adjusted && (

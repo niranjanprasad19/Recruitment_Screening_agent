@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.database import init_db
-from app.routers import resumes, jobs, matching, dashboard, webhooks, auth
+from app.routers import resumes, jobs, matching, dashboard, webhooks, auth, gdpr
 
 # Configure logging
 logging.basicConfig(
@@ -66,6 +66,7 @@ app = FastAPI(
     - `/api/v1/dashboard/` — Analytics and metrics
     - `/api/v1/webhooks/` — ATS integration webhooks
     - `/api/v1/reports/` — Report generation and export
+    - `/api/v1/gdpr/` — GDPR compliance and data management
     """,
     version=settings.APP_VERSION,
     docs_url="/docs",
@@ -89,6 +90,7 @@ app.include_router(matching.router)
 app.include_router(dashboard.router)
 app.include_router(webhooks.router)
 app.include_router(auth.router)
+app.include_router(gdpr.router)
 
 
 @app.get("/", tags=["Health"])
