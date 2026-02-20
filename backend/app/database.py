@@ -10,8 +10,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config import settings
 
+# Fix Render's postgres:// URL to postgresql:// (required by SQLAlchemy 2.x)
+DATABASE_URL = settings.DATABASE_URL
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # Detect database type
-is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+is_sqlite = DATABASE_URL.startswith("sqlite")
 
 # Create engine with appropriate config
 engine_kwargs = {}
@@ -25,7 +30,7 @@ else:
     engine_kwargs["pool_pre_ping"] = True
 
 engine = create_engine(
-    settings.DATABASE_URL,
+    DATABASE_URL,
     echo=settings.DEBUG,
     **engine_kwargs,
 )

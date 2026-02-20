@@ -40,7 +40,7 @@ function LoginPage({ onLogin }) {
         setError('');
 
         try {
-            const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+            const API_BASE = process.env.REACT_APP_API_URL || '';
             const endpoint = tab === 0 ? 'login' : 'register';
             const body = tab === 0
                 ? { email, password }
@@ -267,7 +267,7 @@ function LoginPage({ onLogin }) {
                                             setLoading(true);
                                             setError('');
                                             try {
-                                                const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+                                                const API_BASE = process.env.REACT_APP_API_URL || '';
                                                 // Register if not exists, then login
                                                 const demoEmail = `${demo.role}@demo.com`;
                                                 await fetch(`${API_BASE}/api/v1/auth/register`, {
