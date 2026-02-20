@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     # --- Application ---
     APP_NAME: str = "RSA MVP Enhanced"
     APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
+    DEBUG: bool = False  # Set to True in .env for local development
     SECRET_KEY: str = "dev-secret-key-change-in-production"
     
     # --- Database (SQLite default for dev, PostgreSQL for production) ---

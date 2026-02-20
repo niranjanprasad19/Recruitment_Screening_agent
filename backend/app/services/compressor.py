@@ -258,8 +258,7 @@ class ResumeCompressor:
         
         return (
             f"Professional with {years_str} of experience. "
-            f"Key skills include {skill_str}. "
-            f"Resume contains {len(text.split())} words across {len(text.split(chr(10)))} sections."
+            f"Key skills include {skill_str}."
         )
     
     @staticmethod

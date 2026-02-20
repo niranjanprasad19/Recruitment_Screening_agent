@@ -16,23 +16,40 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rsa_user}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rsa_user}" ]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - rsa-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ---- Redis (Celery Broker) ----
   redis:
     image: redis:7-alpine
     container_name: rsa-redis
     restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - rsa-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
 
   # ---- FastAPI Backend ----
   backend:
@@ -41,23 +58,32 @@ services:
       dockerfile: Dockerfile
     container_name: rsa-backend
     restart: unless-stopped
+    command: >
+      bash -c "gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000 --timeout 120 --graceful-timeout 30 --access-logfile - app.main:app"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-rsa_user}:${POSTGRES_PASSWORD:-rsa_password}@db:5432/${POSTGRES_DB:-rsa_db}
       REDIS_URL: redis://redis:6379/0
       HUGGINGFACE_API_TOKEN: ${HUGGINGFACE_API_TOKEN:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key}
-      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3000}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3000,http://localhost}
       DEBUG: ${DEBUG:-false}
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/uploads:/app/uploads
+      - upload_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - rsa-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   # ---- Celery Worker ----
   celery_worker:
@@ -66,31 +92,55 @@ services:
       dockerfile: Dockerfile
     container_name: rsa-celery-worker
     restart: unless-stopped
-    command: celery -A app.tasks.worker worker --loglevel=info --concurrency=4
+    command: celery -A app.tasks.worker worker --loglevel=info --concurrency=2
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-rsa_user}:${POSTGRES_PASSWORD:-rsa_password}@db:5432/${POSTGRES_DB:-rsa_db}
       REDIS_URL: redis://redis:6379/0
       HUGGINGFACE_API_TOKEN: ${HUGGINGFACE_API_TOKEN:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key}
+      DEBUG: "false"
+    volumes:
+      - upload_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - rsa-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  # ---- React Frontend ----
+  # ---- React Frontend (served via Nginx) ----
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=${REACT_APP_API_URL:-}
     container_name: rsa-frontend
     restart: unless-stopped
     ports:
-      - "3000:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:8000
+      - "3000:80"
     depends_on:
       - backend
+    networks:
+      - rsa-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+networks:
+  rsa-network:
+    driver: bridge
 
 volumes:
   postgres_data:
+  redis_data:
+  upload_data:

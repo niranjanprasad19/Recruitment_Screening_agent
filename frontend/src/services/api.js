@@ -6,7 +6,9 @@
 
 import axios from 'axios';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// In production (Docker/nginx), use relative URL so requests go through the nginx proxy.
+// For local development without Docker, set REACT_APP_API_URL=http://localhost:8000
+const API_BASE = process.env.REACT_APP_API_URL || '';
 
 const api = axios.create({
     baseURL: `${API_BASE}/api/v1`,
@@ -78,6 +80,8 @@ export const resumeApi = {
     get: (id) => api.get(`/resumes/${id}`),
 
     delete: (id) => api.delete(`/resumes/${id}`),
+
+    download: (id) => api.get(`/resumes/${id}/download`, { responseType: 'blob' }),
 };
 
 // ============================================

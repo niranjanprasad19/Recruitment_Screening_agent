@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+.eggs/
+*.whl
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Dev databases (do NOT ship into prod image)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite3
+
+# Test files
+test_*.py
+test_*.txt
+tests/
+
+# Uploads (mounted as volume)
+uploads/
+
+# Environment
+.env
+.env.*
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db

@@ -11,6 +11,7 @@ import logging
 from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Query, BackgroundTasks, Form
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -313,6 +314,23 @@ async def get_candidate(candidate_id: str, db: Session = Depends(get_db)):
         "updated_at": candidate.updated_at.isoformat() if candidate.updated_at else None,
         "expires_at": candidate.expires_at.isoformat() if candidate.expires_at else None,
     }
+
+
+@router.get("/{candidate_id}/download")
+async def download_resume(candidate_id: str, db: Session = Depends(get_db)):
+    """Download the original resume file."""
+    candidate = db.query(Candidate).filter(Candidate.id == candidate_id).first()
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    
+    if not candidate.file_path or not os.path.exists(candidate.file_path):
+        raise HTTPException(status_code=404, detail="Resume file not found on server")
+    
+    return FileResponse(
+        path=candidate.file_path,
+        filename=candidate.file_name,
+        media_type='application/octet-stream'
+    )
 
 
 @router.delete("/{candidate_id}", status_code=204)

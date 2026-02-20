@@ -23,6 +23,7 @@ import {
     AutoAwesome as AIIcon,
     Logout as LogoutIcon,
     Shield as ShieldIcon,
+    People as PeopleIcon,
 } from '@mui/icons-material';
 
 import LoginPage from './pages/LoginPage';
@@ -34,6 +35,7 @@ import ResultsPage from './pages/ResultsPage';
 import GdprPage from './pages/GdprPage';
 import CandidateDetailPage from './pages/CandidateDetailPage';
 import JobAnalyticsPage from './pages/JobAnalyticsPage';
+import CandidatesPage from './pages/CandidatesPage';
 
 const DRAWER_WIDTH = 260;
 
@@ -41,6 +43,7 @@ const navItems = [
     { path: '/', label: 'Dashboard', icon: <DashboardIcon /> },
     { path: '/upload', label: 'Upload Resumes', icon: <UploadIcon /> },
     { path: '/jobs', label: 'Job Descriptions', icon: <JobIcon /> },
+    { path: '/candidates', label: 'Candidates', icon: <PeopleIcon /> },
     { path: '/matching', label: 'Run Matching', icon: <MatchIcon /> },
     { path: '/results', label: 'Results & Reports', icon: <ReportIcon /> },
     { path: '/gdpr', label: 'GDPR Compliance', icon: <ShieldIcon /> },
@@ -54,6 +57,7 @@ function AnimatedRoutes() {
                 <Route path="/" element={<PageWrapper><DashboardPage /></PageWrapper>} />
                 <Route path="/upload" element={<PageWrapper><UploadPage /></PageWrapper>} />
                 <Route path="/jobs" element={<PageWrapper><JobsPage /></PageWrapper>} />
+                <Route path="/candidates" element={<PageWrapper><CandidatesPage /></PageWrapper>} />
                 <Route path="/matching" element={<PageWrapper><MatchingPage /></PageWrapper>} />
                 <Route path="/results" element={<PageWrapper><ResultsPage /></PageWrapper>} />
                 <Route path="/gdpr" element={<PageWrapper><GdprPage /></PageWrapper>} />

@@ -49,3 +49,5 @@ cryptography>=41.0.0
 
 # --- Report Generation ---
 reportlab>=4.0.0
+
+gunicorn>=21.2.0

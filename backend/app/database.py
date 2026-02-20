@@ -61,5 +61,5 @@ def get_db():
 def init_db():
     """Create all tables defined in models."""
     # Import all models so they register with Base
-    from app.models import candidate, job, match, audit, webhook  # noqa
+    from app.models import candidate, job, match, audit, webhook, user  # noqa
     Base.metadata.create_all(bind=engine)

@@ -56,10 +56,13 @@ function MatchingPage() {
     const [selectedJob, setSelectedJob] = useState('');
     const [candidateCount, setCandidateCount] = useState(0);
     const [config, setConfig] = useState({
-        skill_weight: 0.4,
-        experience_weight: 0.3,
-        education_weight: 0.2,
-        semantic_weight: 0.1,
+        skill_weight: 0.30,
+        experience_weight: 0.20,
+        education_weight: 0.10,
+        title_weight: 0.10,
+        stability_weight: 0.15,
+        growth_weight: 0.15,
+        semantic_weight: 0.0,
         bias_check: true,
     });
     const [matching, setMatching] = useState(false);
@@ -177,7 +180,7 @@ function MatchingPage() {
     };
 
     // Ensure weights sum to ~1.0
-    const totalWeight = config.skill_weight + config.experience_weight + config.education_weight + config.semantic_weight;
+    const totalWeight = config.skill_weight + config.experience_weight + config.education_weight + config.title_weight + config.stability_weight + config.growth_weight + config.semantic_weight;
 
     return (
         <Box>
@@ -390,6 +393,12 @@ function MatchingPage() {
                                     onChange={(v) => setConfig({ ...config, experience_weight: v })} color="#06b6d4" />
                                 <WeightSlider label="🎓 Education" value={config.education_weight}
                                     onChange={(v) => setConfig({ ...config, education_weight: v })} color="#10b981" />
+                                <WeightSlider label="💼 Job Title Match" value={config.title_weight}
+                                    onChange={(v) => setConfig({ ...config, title_weight: v })} color="#3b82f6" />
+                                <WeightSlider label="⚓ Job Stability (Tenure)" value={config.stability_weight}
+                                    onChange={(v) => setConfig({ ...config, stability_weight: v })} color="#ec4899" />
+                                <WeightSlider label="📈 Career Growth" value={config.growth_weight}
+                                    onChange={(v) => setConfig({ ...config, growth_weight: v })} color="#8b5cf6" />
                                 <WeightSlider label="🧠 Semantic Similarity" value={config.semantic_weight}
                                     onChange={(v) => setConfig({ ...config, semantic_weight: v })} color="#f59e0b" />
 

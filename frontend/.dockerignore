@@ -1,0 +1,19 @@
+# Dependencies (npm ci will install fresh)
+node_modules/
+
+# Build output (rebuilt inside Docker)
+build/
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db
+npm-debug.log*

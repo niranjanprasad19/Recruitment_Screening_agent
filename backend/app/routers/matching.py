@@ -28,10 +28,13 @@ router = APIRouter(prefix="/api/v1/match", tags=["Matching"])
 
 
 class MatchConfig(BaseModel):
-    skill_weight: float = 0.4
-    experience_weight: float = 0.3
-    education_weight: float = 0.2
-    semantic_weight: float = 0.1
+    skill_weight: float = 0.30
+    experience_weight: float = 0.20
+    education_weight: float = 0.10
+    title_weight: float = 0.10
+    stability_weight: float = 0.15
+    growth_weight: float = 0.15
+    semantic_weight: float = 0.0
     bias_check: bool = True
 
 
@@ -96,15 +99,21 @@ def run_matching_background(session_id: str, db_url: str):
             "skill_weight": config.get("skill_weight", settings.DEFAULT_SKILL_WEIGHT),
             "experience_weight": config.get("experience_weight", settings.DEFAULT_EXPERIENCE_WEIGHT),
             "education_weight": config.get("education_weight", settings.DEFAULT_EDUCATION_WEIGHT),
+            "title_weight": config.get("title_weight", 0.15),
+            "stability_weight": config.get("stability_weight", 0.15),
+            "growth_weight": config.get("growth_weight", 0.15),
             "semantic_weight": config.get("semantic_weight", settings.DEFAULT_SEMANTIC_WEIGHT),
         }
+        
+        job_payload = job.compressed_data or {}
+        job_payload["title"] = job.title
         
         results = []
         for i, candidate in enumerate(candidates):
             try:
                 match_result = MatchingEngine.compute_match(
                     candidate_data=candidate.compressed_data or {},
-                    job_data=job.compressed_data or {},
+                    job_data=job_payload,
                     candidate_embedding=candidate.embedding,
                     job_embedding=job.embedding,
                     config=match_config,
@@ -179,6 +188,9 @@ async def run_matching(
         "skill_weight": settings.DEFAULT_SKILL_WEIGHT,
         "experience_weight": settings.DEFAULT_EXPERIENCE_WEIGHT,
         "education_weight": settings.DEFAULT_EDUCATION_WEIGHT,
+        "title_weight": 0.15,
+        "stability_weight": 0.15,
+        "growth_weight": 0.15,
         "semantic_weight": settings.DEFAULT_SEMANTIC_WEIGHT,
         "bias_check": True,
     }
