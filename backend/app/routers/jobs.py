@@ -101,11 +101,12 @@ def process_jd_background(job_id: str, file_path: str = None, text: str = None, 
         job.experience_range = compressed.get("experience_range", "")
         job.education_requirement = compressed.get("education_requirements", "")
         
-        # Step 3: Generate embedding (optional)
+        # Step 3: Generate embedding (optional — disabled for Render free tier to prevent OOM)
         try:
-            from app.services.matcher import MatchingEngine
-            embedding = MatchingEngine.generate_embedding(raw_text)
-            job.embedding = embedding
+            # from app.services.matcher import MatchingEngine
+            # embedding = MatchingEngine.generate_embedding(raw_text)
+            # job.embedding = embedding
+            pass
         except Exception as e:
             logger.warning(f"Embedding generation skipped for job {job_id}: {e}")
         

@@ -78,11 +78,12 @@ def process_resume_background(candidate_id: str, file_path: str, db_url: str):
         candidate.experience_years = compressed.get("total_experience_years", 0)
         candidate.education = str(compressed.get("education", ""))
         
-        # Step 4: Generate embedding (optional — may fail without model)
+        # Step 4: Generate embedding (optional — disabled for Render free tier to prevent OOM)
         try:
-            from app.services.matcher import MatchingEngine
-            embedding = MatchingEngine.generate_embedding(neutralized_text)
-            candidate.embedding = embedding
+            # from app.services.matcher import MatchingEngine
+            # embedding = MatchingEngine.generate_embedding(neutralized_text)
+            # candidate.embedding = embedding
+            pass
         except Exception as e:
             logger.warning(f"Embedding generation skipped for {candidate_id}: {e}")
         
